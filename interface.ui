@@ -56,7 +56,7 @@
            <x>0</x>
            <y>0</y>
            <width>427</width>
-           <height>500</height>
+           <height>498</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -80,7 +80,7 @@
              </font>
             </property>
             <property name="placeholderText">
-             <string>Система уравнений</string>
+             <string>Equation system</string>
             </property>
            </widget>
           </item>
@@ -97,7 +97,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Рассчитать</string>
+         <string>Calculate</string>
         </property>
        </widget>
       </item>
@@ -118,7 +118,7 @@
            <x>0</x>
            <y>0</y>
            <width>426</width>
-           <height>500</height>
+           <height>498</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -154,7 +154,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string>Результаты</string>
+             <string>Results</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -178,36 +178,32 @@
      <x>0</x>
      <y>0</y>
      <width>883</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>Файл</string>
+     <string>File</string>
     </property>
     <addaction name="quitAction"/>
    </widget>
    <widget class="QMenu" name="menuField">
     <property name="title">
-     <string>Выбор поля</string>
+     <string>Set</string>
     </property>
-    <addaction name="actionFieldR"/>
-    <addaction name="actionFieldC"/>
     <addaction name="actionFieldGF"/>
     <addaction name="actionFieldZn"/>
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
-     <string>Алгоритм</string>
+     <string>Algorithm</string>
     </property>
     <addaction name="actionBuch"/>
-    <addaction name="actionBuchB"/>
-    <addaction name="actionF5"/>
-    <addaction name="actionF5C"/>
+    <addaction name="actionBuchI"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
-     <string>Упорядочение</string>
+     <string>Ordering</string>
     </property>
     <addaction name="actionLEX"/>
     <addaction name="actionINVLEX"/>
@@ -222,10 +218,13 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="quitAction">
    <property name="text">
-    <string>Выйти</string>
+    <string>Quit</string>
+   </property>
+   <property name="toolTip">
+    <string>Quit</string>
    </property>
   </action>
-  <action name="actionFieldR">
+  <action name="actionFieldGF">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -233,23 +232,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Поле рациональных чисел</string>
+    <string>Galois field, GF(2^n)</string>
    </property>
-  </action>
-  <action name="actionFieldC">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Поле комплексных чисел</string>
-   </property>
-  </action>
-  <action name="actionFieldGF">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Поле Галуа характеристики 2</string>
+   <property name="toolTip">
+    <string>Galois field of characteristic 2</string>
    </property>
   </action>
   <action name="actionFieldZn">
@@ -257,7 +243,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Поле вычетов по модулю простого числа</string>
+    <string>Residue, Z_n</string>
+   </property>
+   <property name="toolTip">
+    <string>Ring or field modulo natural number, Z_n</string>
    </property>
   </action>
   <action name="actionBuch">
@@ -268,31 +257,21 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Алг. Бухбергера</string>
+    <string>Buchberger</string>
+   </property>
+   <property name="toolTip">
+    <string>Buchberger regular algorithm</string>
    </property>
   </action>
-  <action name="actionBuchB">
+  <action name="actionBuchI">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Алг. Бухбергера улучшенный</string>
+    <string>Buchberger improved</string>
    </property>
-  </action>
-  <action name="actionF5">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Алг. F5</string>
-   </property>
-  </action>
-  <action name="actionF5C">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Алг. F5C</string>
+   <property name="toolTip">
+    <string>Buchberger improved algorithm</string>
    </property>
   </action>
   <action name="actionLEX">
@@ -337,6 +316,17 @@
    </property>
    <property name="text">
     <string>GREVLEX</string>
+   </property>
+  </action>
+  <action name="actionRINVLEX">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>RINVLEX</string>
+   </property>
+   <property name="toolTip">
+    <string>RINVLEX</string>
    </property>
   </action>
  </widget>

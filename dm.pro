@@ -15,29 +15,29 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+INCLUDEPATH += include extern/libkam/include
+unix:LIBS   += -L$${PWD}/extern/libkam/build -lkam
+
+make_libkam.target   = $${PWD}/extern/libkam/build/libkam.so
+make_libkam.commands = cd $${PWD}/extern/libkam && \
+		       make && \
+		       cd ../../
+PRE_TARGETDEPS      += $${PWD}/extern/libkam/build/libkam.so
+QMAKE_EXTRA_TARGETS += make_libkam
+
+
 SOURCES += \
-    main.cpp \
-    interface.cpp \
-    polynom/monom.cpp \
-    fields/galois_fast.cpp \
-    nonlinear_2n.cpp \
-    fields/extra_fields.cpp \
-    parser/field_reader.cpp \
-    fields/modulo_prime.cpp
+     src/main.cpp \
+     src/interface.cpp \
 
 HEADERS += \
-    interface.h \
-    polynom/monom.h \
-    polynom/polynom.h \
-    fields/galois_fast.h \
-    fields/modulo_prime.h \
-    nonlinear_2n.h \
-    fields/extra_fields.h \
-    parser/field_reader.h \
-    polynom/monom.h fields/galois_fast.h fields/extra_fields.h polynom/polynom.h grobner_alg/buchberger.h grobner_alg/faugere.h parser/field_reader.h parser/parser.h
+     include/interface.h \
+     include/nonlinear_2n.h \
+     include/parser/set_io.h \
+     include/parser/parser.h
 
 FORMS += \
-    interface.ui
+     interface.ui
 
 OBJECTS_DIR += build
 MOC_DIR += build

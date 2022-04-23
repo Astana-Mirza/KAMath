@@ -1,0 +1,4 @@
+[submodule "extern/libkam"]
+	path = extern/libkam
+	url = git@github.com:Astana-Mirza/libkam.git
+	branch = main
