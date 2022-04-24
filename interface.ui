@@ -207,6 +207,7 @@
     </property>
     <addaction name="actionLEX"/>
     <addaction name="actionINVLEX"/>
+    <addaction name="actionRINVLEX"/>
     <addaction name="actionGRLEX"/>
     <addaction name="actionGREVLEX"/>
    </widget>
@@ -320,6 +321,12 @@
   </action>
   <action name="actionRINVLEX">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
     <bool>true</bool>
    </property>
    <property name="text">

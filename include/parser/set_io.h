@@ -57,7 +57,16 @@ std::string to_string( const Galois2N& val )
      {
           return "0";
      }
-     return std::string{ PRIM_CHAR } + "^{" + std::to_string( val.prim_power() ) + "}";
+     auto prim_pow = val.prim_power();
+     if ( prim_pow == 0 )
+     {
+          return "1";
+     }
+     if ( prim_pow == 1 )
+     {
+          return std::string{ PRIM_CHAR };
+     }
+     return std::string{ PRIM_CHAR } + "^{" + std::to_string( prim_pow ) + "}";
 }
 
 
@@ -73,7 +82,11 @@ std::string to_string( const Monom& mon )
      std::string result;
      for ( const auto& var : vars )
      {
-          result += var.first + "^{" + std::to_string( var.second ) + "}";
+          result += var.first;
+          if ( var.second > 1 )
+          {
+               result += "^{" + std::to_string( var.second ) + "}";
+          }
      }
      return result;
 }
@@ -95,11 +108,19 @@ std::string to_string( const Polynom& pol )
           {
                result += " + ";
           }
-          result += to_string( term.second );
+          std::string coeff = to_string( term.second );
           std::string mon = to_string( term.first );
-          if ( !mon.empty() )
+          if ( coeff == "1" && !mon.empty() )
           {
-               result += "*" + mon;
+               result += mon;
+          }
+          else
+          {
+               result += coeff;
+               if ( !mon.empty() )
+               {
+                    result += "*" + mon;
+               }
           }
      }
      return result;

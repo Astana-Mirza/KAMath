@@ -182,9 +182,6 @@ void Interface::readOrdered()
                     {
                          throw std::runtime_error{ "wrong primitive polynomial" };
                     }
-
-                    qDebug() << QString::fromStdString( to_string( pol ) );
-
                     const auto& terms = pol.get_terms();
                     Galois2N::polynom_type prim( terms.cbegin()->first.full_deg() + 1 );
                     for ( const auto& term : terms )
@@ -236,6 +233,13 @@ QStringList Interface::processGf2n( const Galois2N::polynom_type& prim )
      }
 
      auto system = make_system( pols.front() );
+
+     qDebug() << "SYSTEM:";
+     for ( const auto& pol : system )
+     {
+          qDebug() << QString::fromStdString( to_string( pol ) );
+     }
+
      switch ( algo_ ) {
           case GrobAlgo::Buchberger:
           {
