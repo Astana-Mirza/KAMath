@@ -297,6 +297,10 @@ Polynom< T, Ordering > prim( TokenStream< T, Ordering >& ts, bool get ) {
                }
                return e;
           }
+          case Kind::end:
+          {
+               throw std::runtime_error{ "Unexpected end of input" };
+          }
           default:
           {
                throw std::runtime_error{ "Unexpected sequence of characters" };
@@ -345,7 +349,7 @@ Polynom< T, Ordering > expr( TokenStream< T, Ordering >& ts, bool get )
                case Kind::minus:
                case Kind::eq:
                {
-                    left -= term( ts, true );
+                    left -= expr( ts, true );
                     break;
                }
                default:

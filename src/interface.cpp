@@ -35,7 +35,7 @@ void Interface::showErrorMessage( QString errorMessage )
      QMessageBox message;
      message.setWindowTitle( tr( "Error" ) );
      message.setIcon( QMessageBox::Warning );
-     message.setText( tr( "Error occured when executng:\n" ) + errorMessage );
+     message.setText( tr( "Error occured during execution:\n" ) + errorMessage );
      message.exec();
 }
 
@@ -43,17 +43,27 @@ void Interface::showErrorMessage( QString errorMessage )
 void Interface::setActions()
 {
      connect( ui_->calculateBtn, &QPushButton::clicked, this, &Interface::readSystem );
-     connect( ui_->actionFieldGF, static_cast< void ( QAction::* )( bool ) >( &QAction::triggered ), this, [&]()
+     connect( ui_->actionEquationGF2N, static_cast< void ( QAction::* )( bool ) >( &QAction::triggered ), this, [&]()
      {
-          set_type_ = SetType::Gf2n;
+          mode_ = Mode::Gf2nEquation;
           ui_->modInput->setText( tr( "" ) );
+          ui_->systemInput->setPlaceholderText( tr( "Polynomial equation" ) );
           ui_->modInput->setPlaceholderText( tr( "Irreducible polynom" ) );
           ui_->modInput->setReadOnly( false );
      } );
-     connect( ui_->actionFieldZn, static_cast< void ( QAction::* )( bool ) >( &QAction::triggered ), this, [&]()
+     connect( ui_->actionSystemGF2N, static_cast< void ( QAction::* )( bool ) >( &QAction::triggered ), this, [&]()
      {
-          set_type_ = SetType::Residue;
+          mode_ = Mode::Gf2nBasis;
           ui_->modInput->setText( tr("") );
+          ui_->systemInput->setPlaceholderText( tr( "System of polynomials" ) );
+          ui_->modInput->setPlaceholderText( tr( "Irreducible polynom" ) );
+          ui_->modInput->setReadOnly( false );
+     } );
+     connect( ui_->actionSystemZn, static_cast< void ( QAction::* )( bool ) >( &QAction::triggered ), this, [&]()
+     {
+          mode_ = Mode::ResidueBasis;
+          ui_->modInput->setText( tr("") );
+          ui_->systemInput->setPlaceholderText( tr( "System of polynomials" ) );
           ui_->modInput->setPlaceholderText( tr( "Natural number" ) );
           ui_->modInput->setReadOnly( false );
      } );
@@ -73,10 +83,6 @@ void Interface::setActions()
      {
           ordering_ = MonomOrd::Invlex;
      } );
-     connect( ui_->actionRINVLEX, static_cast< void ( QAction::* )( bool ) >( &QAction::triggered ), this, [&]()
-     {
-          ordering_ = MonomOrd::Rinvlex;
-     } );
      connect( ui_->actionGRLEX, static_cast< void ( QAction::* )( bool ) >( &QAction::triggered ), this, [&]()
      {
           ordering_ = MonomOrd::Grlex;
@@ -86,10 +92,11 @@ void Interface::setActions()
           ordering_ = MonomOrd::Grevlex;
      } );
 
-     QActionGroup* group_field = new QActionGroup( this );
-     ui_->actionFieldGF->setActionGroup( group_field );
-     ui_->actionFieldZn->setActionGroup( group_field );
-     group_field->setExclusive( true );
+     QActionGroup* group_mode = new QActionGroup( this );
+     ui_->actionEquationGF2N->setActionGroup( group_mode );
+     ui_->actionSystemGF2N->setActionGroup( group_mode );
+     ui_->actionSystemZn->setActionGroup( group_mode );
+     group_mode->setExclusive( true );
 
      QActionGroup* group_alg = new QActionGroup( this );
      ui_->actionBuch->setActionGroup( group_alg );
@@ -99,7 +106,6 @@ void Interface::setActions()
      QActionGroup* group_ord = new QActionGroup( this );
      ui_->actionLEX->setActionGroup( group_ord );
      ui_->actionINVLEX->setActionGroup( group_ord );
-     ui_->actionRINVLEX->setActionGroup( group_ord );
      ui_->actionGRLEX->setActionGroup( group_ord );
      ui_->actionGREVLEX->setActionGroup( group_ord );
      group_ord->setExclusive( true );
@@ -120,11 +126,6 @@ void Interface::readSystem()
           case MonomOrd::Invlex:
           {
                readOrdered< InvlexGreater >();
-               break;
-          }
-          case MonomOrd::Rinvlex:
-          {
-               readOrdered< RinvlexGreater >();
                break;
           }
           case MonomOrd::Grlex:
@@ -149,8 +150,8 @@ void Interface::writeOutput( QStringList& output )
      for ( auto& equation: output )
      {
           html += "<p>";
-          equation.replace( "^{", "<span style=\"vertical-align: super; color: red;\">" );
-          equation.replace( "_{", "<span style=\"vertical-align: sub; color: green;\">" );
+          equation.replace( "^{", "<span style=\"vertical-align: super; color: #1a237e;\">" );
+          equation.replace( "_{", "<span style=\"vertical-align: sub; color: #6a1b9a;\">" );
           equation.replace(  "}", "</span>" );
           html += equation;
           html += "</p>";
@@ -164,82 +165,74 @@ void Interface::writeOutput( QStringList& output )
 template < typename Ordering >
 void Interface::readOrdered()
 {
-     //try
-     //{
+     try
+     {
           QString modstr = ui_->modInput->text();
           std::stringstream polst;
           QStringList result;
 
-          switch ( set_type_ )
+          if ( mode_ == Mode::ResidueBasis )
           {
-               case SetType::Gf2n:
+               result = processResidueBasis< Ordering >( modstr.toULongLong() );
+          }
+          else
+          {
+               polst << modstr.toStdString() + "\n";
+               TokenStream< Residue, GrevlexGreater > ts( polst, Residue{ 2, 1 } );
+               auto pol = expr( ts, true );
+               if ( !pol || pol.get_terms().cbegin()->first.var_deg( "x" ) < 2 )
                {
-                    modstr.replace( "a", "x" );
-                    polst << modstr.toStdString() + "\n";
-                    TokenStream< Residue, Ordering > ts( polst, Residue{ 2, 1 } );
-                    auto pol = expr( ts, true );
-                    if ( !pol || pol.get_terms().cbegin()->first.var_deg( "x" ) < 2 )
-                    {
-                         throw std::runtime_error{ "wrong primitive polynomial" };
-                    }
-                    const auto& terms = pol.get_terms();
-                    Galois2N::polynom_type prim( terms.cbegin()->first.full_deg() + 1 );
-                    for ( const auto& term : terms )
-                    {
-                         prim.set( term.first.var_deg( "x" ) );
-                    }
-                    result = processGf2n< Ordering >( prim );
-                    break;
+                    throw std::runtime_error{ "wrong primitive polynomial" };
                }
-               case SetType::Residue:
+               const auto& terms = pol.get_terms();
+               Galois2N::polynom_type prim( terms.cbegin()->first.full_deg() + 1 );
+               for ( const auto& term : terms )
                {
-                    result = processResidue< Ordering >( modstr.toULongLong() );
-                    break;
+                    prim.set( term.first.var_deg( "x" ) );
+               }
+               if ( mode_ == Mode::Gf2nEquation )
+               {
+                    result = processGf2nEquation< Ordering >( prim );
+               }
+               else
+               {
+                    result = processGf2nBasis< Ordering >( prim );
                }
           }
           writeOutput( result );
-     //}
-    //catch ( std::exception& ex )
-     //{
-      //    showErrorMessage( QString::fromStdString( ex.what() ) );
-     //}
+     }
+     catch ( std::exception& ex )
+     {
+          showErrorMessage( QString::fromStdString( ex.what() ) );
+     }
 }
 
 
 template < typename Ordering >
-QStringList Interface::processGf2n( const Galois2N::polynom_type& prim )
+QStringList Interface::processGf2nEquation( const Galois2N::polynom_type& prim )
 {
      QString content = ui_->systemInput->toPlainText();
      std::stringstream ist;
      ist << content.toStdString() + "\n";
      Galois2N one{ prim, 0 };
      TokenStream< Galois2N, Ordering > ts( ist, one );
-     std::vector< Polynom< Galois2N, Ordering > > pols;
-     // std::vector< Polynom< Residue , Ordering > > system;
+     Polynom< Galois2N, Ordering > pol;
      clock_t begin = 0, end = 0;
 
      QStringList result;
-     while ( ts.get().kind != Kind::end )
+     while ( !pol && ts.get().kind != Kind::end )
      {
-          auto pol = expr( ts, false );
-          if ( pol )
-          {
-               pols.push_back( pol );
-          }
+          pol = expr( ts, false );
      }
-     if ( pols.empty() )
+     if ( !pol )
      {
           return result;
      }
 
-     auto system = make_system( pols.front() );
-
-     qDebug() << "SYSTEM:";
-     for ( const auto& pol : system )
-     {
-          qDebug() << QString::fromStdString( to_string( pol ) );
-     }
-
+     auto system = make_system( pol );
+     result.push_back( tr( "Factor all variables" ) );
+     result.push_back( "x = x_{0} + ax_{1} + ... + a^{n-1}x_{n-1}" );
+     result.push_back( tr( "Find Grobner basis for system over Z_{2}" ) );
      switch ( algo_ ) {
           case GrobAlgo::Buchberger:
           {
@@ -266,13 +259,69 @@ QStringList Interface::processGf2n( const Galois2N::polynom_type& prim )
                break;
           }
      }
-     result.append( "Time elapsed:\n" + QString::number( ( end - begin ) / ( double )CLOCKS_PER_SEC ) );
+     result.append( tr( "Time elapsed (sec): " ) + QString::number( ( end - begin ) / ( double )CLOCKS_PER_SEC ) );
      return result;
 }
 
 
 template < typename Ordering >
-QStringList Interface::processResidue( uint64_t mod )
+QStringList Interface::processGf2nBasis( const Galois2N::polynom_type& prim )
+{
+     QString content = ui_->systemInput->toPlainText();
+     std::stringstream ist;
+     ist << content.toStdString() + "\n";
+     Galois2N one{ prim, 0 };
+     TokenStream< Galois2N, Ordering > ts( ist, one );
+     std::vector< Polynom< Galois2N, Ordering > > pols;
+     clock_t begin = 0, end = 0;
+
+     QStringList result;
+     while ( ts.get().kind != Kind::end )
+     {
+          auto pol = expr( ts, false );
+          if ( pol )
+          {
+               pols.push_back( pol );
+          }
+     }
+     if ( pols.empty() )
+     {
+          return result;
+     }
+
+     switch ( algo_ ) {
+          case GrobAlgo::Buchberger:
+          {
+              begin = clock();
+              auto basis = Buchberger< Polynom< Galois2N, Ordering > >::find_basis_brute_force( pols );
+              reduce_basis( basis );
+              end = clock();
+              for ( auto& pol : basis )
+              {
+                  result.append( QString::fromStdString( to_string( pol ) ) + " = 0" );
+              }
+              break;
+          }
+          case GrobAlgo::BuchbergerImproved:
+          {
+               begin = clock();
+               auto basis = Buchberger< Polynom< Galois2N, Ordering > >::find_basis( pols );
+               reduce_basis( basis );
+               end = clock();
+               for ( auto& pol : basis )
+               {
+                   result.append( QString::fromStdString( to_string( pol ) ) + " = 0" );
+               }
+               break;
+          }
+     }
+     result.append( tr( "Time elapsed (sec): " ) + QString::number( ( end - begin ) / ( double )CLOCKS_PER_SEC ) );
+     return result;
+}
+
+
+template < typename Ordering >
+QStringList Interface::processResidueBasis( uint64_t mod )
 {
      QString content = ui_->systemInput->toPlainText();
      std::stringstream ist;
@@ -324,6 +373,6 @@ QStringList Interface::processResidue( uint64_t mod )
                break;
           }
      }
-     result.append( "Time elapsed:\n" + QString::number( ( end - begin ) / ( double )CLOCKS_PER_SEC ) );
+     result.append( tr( "Time elapsed (sec): " ) + QString::number( ( end - begin ) / ( double )CLOCKS_PER_SEC ) );
      return result;
 }

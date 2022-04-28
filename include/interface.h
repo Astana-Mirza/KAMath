@@ -14,9 +14,10 @@ enum class GrobAlgo {
 };
 
 
-enum class SetType {
-     Gf2n,
-     Residue
+enum class Mode {
+     Gf2nEquation,
+     Gf2nBasis,
+     ResidueBasis
 };
 
 
@@ -24,8 +25,7 @@ enum class MonomOrd {
      Lex,
      Invlex,
      Grlex,
-     Grevlex,
-     Rinvlex
+     Grevlex
 };
 
 
@@ -39,7 +39,7 @@ public:
 
 private:
      Ui::Interface *ui_;
-     SetType set_type_ = SetType::Gf2n;
+     Mode mode_ = Mode::Gf2nEquation;
      GrobAlgo algo_ = GrobAlgo::Buchberger;
      MonomOrd ordering_ = MonomOrd::Lex;
 
@@ -52,10 +52,13 @@ private:
      void readOrdered();
 
      template < typename Ordering >
-     QStringList processGf2n( const Galois2N::polynom_type& prim );
+     QStringList processGf2nEquation( const Galois2N::polynom_type& prim );
 
      template < typename Ordering >
-     QStringList processResidue( uint64_t mod );
+     QStringList processGf2nBasis( const Galois2N::polynom_type& prim );
+
+     template < typename Ordering >
+     QStringList processResidueBasis( uint64_t mod );
 };
 
 #endif // INTERFACE_H

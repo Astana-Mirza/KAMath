@@ -80,7 +80,7 @@
              </font>
             </property>
             <property name="placeholderText">
-             <string>Equation system</string>
+             <string>Polynomial equation</string>
             </property>
            </widget>
           </item>
@@ -189,10 +189,11 @@
    </widget>
    <widget class="QMenu" name="menuField">
     <property name="title">
-     <string>Set</string>
+     <string>Mode</string>
     </property>
-    <addaction name="actionFieldGF"/>
-    <addaction name="actionFieldZn"/>
+    <addaction name="actionEquationGF2N"/>
+    <addaction name="actionSystemGF2N"/>
+    <addaction name="actionSystemZn"/>
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
@@ -207,7 +208,6 @@
     </property>
     <addaction name="actionLEX"/>
     <addaction name="actionINVLEX"/>
-    <addaction name="actionRINVLEX"/>
     <addaction name="actionGRLEX"/>
     <addaction name="actionGREVLEX"/>
    </widget>
@@ -225,7 +225,7 @@
     <string>Quit</string>
    </property>
   </action>
-  <action name="actionFieldGF">
+  <action name="actionEquationGF2N">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -233,21 +233,21 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Galois field, GF(2^n)</string>
+    <string>Equation, GF(2^n)</string>
    </property>
    <property name="toolTip">
-    <string>Galois field of characteristic 2</string>
+    <string>Help to solve polynomial equation in GF(2^N)</string>
    </property>
   </action>
-  <action name="actionFieldZn">
+  <action name="actionSystemZn">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Residue, Z_n</string>
+    <string>System, Z_n</string>
    </property>
    <property name="toolTip">
-    <string>Ring or field modulo natural number, Z_n</string>
+    <string>Find Grobner basis of system of polynomials over Z_n field (or ring)</string>
    </property>
   </action>
   <action name="actionBuch">
@@ -319,21 +319,15 @@
     <string>GREVLEX</string>
    </property>
   </action>
-  <action name="actionRINVLEX">
+  <action name="actionSystemGF2N">
    <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
    <property name="text">
-    <string>RINVLEX</string>
+    <string>System, GF(2^N)</string>
    </property>
    <property name="toolTip">
-    <string>RINVLEX</string>
+    <string>Find Grobner basis of system of polynomials over GF(2^N)</string>
    </property>
   </action>
  </widget>
